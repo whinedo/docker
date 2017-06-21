@@ -1,0 +1,34 @@
+version: '2'
+
+networks:
+  zabbixnetwork:
+    driver: bridge
+
+services:
+ zabbix-db:
+  image: "monitoringartist/zabbix-db-mariadb"
+  networks:
+    - zabbixnetwork
+  environment:
+    - MARIADB_USER=zabbix
+    - MARIADB_PASS=my_password
+
+ zabbix:
+  image: monitoringartist/zabbix-xxl:latest
+  environment:
+    - ZS_DBHost=zabbix-db
+    - ZS_DBUser=zabbix
+    - ZS_DBPassword=my_password
+    - XXL_zapix=true
+    - XXL_grapher=true
+  depends_on:
+    - zabbix-db
+  ports:
+    - "88:80"
+    - "10051:10051"
+  volumes:
+    - /etc/localtime:/etc/localtime:ro
+  networks:
+    - zabbixnetwork
+
+#default credentials: Admin/zabbix

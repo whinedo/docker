@@ -1,0 +1,31 @@
+version: '2'
+
+#networks:
+#  graylognetwork:
+#    driver: bridge
+
+services:
+ mongodb-gray:
+  image: "mongo:3"
+#  networks:
+#    - graylognetwork
+
+ elasticsearch-gray:
+  image: "elasticsearch:2"
+  command: "elasticsearch -Des.cluster.name='graylog'"
+#  networks:
+#    - graylognetwork
+
+ graylog:
+  image: graylog2/server:2.1.0-3
+  environment:
+#    - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+#    - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+    - GRAYLOG_ENDPOINT_URI=http://127.0.0.1:9000/api
+  depends_on:
+    - mongodb-gray
+    - elasticsearch-gray
+  ports:
+    - "9000:9000"
+#  networks:
+#    - graylognetwork

@@ -1,0 +1,39 @@
+version: "2"
+services:
+    zabbix-db:
+      image: zabbix/zabbix-db-mariadb
+      volumes:
+        - zabbix_backups:/backups
+        - /etc/localtime:/etc/localtime:ro
+        - zabbix_db_storage:/var/lib/mysql
+      environment:
+        - MARIADB_USER=zabbix
+        - MARIADB_PASS=adminm3
+      restart: always
+
+    zabbix-server:
+      image: monitoringartist/zabbix-3.0-xxl:latest
+      ports:
+        - "8085:80"
+        - "10051:10051"
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+      links:
+        - zabbix-db:zabbix.db
+      environment:
+        - ZS_DBHost=zabbix.db
+        - ZS_DBUser=zabbix
+        - ZS_DBPassword=adminm3
+        - ZS_StartVMwareCollectors=1
+        - ZS_StartIPMIPollers=3
+        - XXL_grapher=true
+        - XXL_analytics=false
+      restart: always
+
+volumes:
+    zabbix_db_storage:
+        driver: local
+    zabbix_backups:
+        driver: local
+
+#default credentials: Admin/zabbix
